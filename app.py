@@ -59,17 +59,25 @@ def encode_input():
     return np.array(features).reshape(1, -1)
 
 # Predict Stroke Risk
-if st.button("Predict Stroke Risk"):
-    user_input = encode_input()
-    risk_score = model.predict_proba(user_input)[0][1]
-    
-    # Display Risk Score
-    st.write(f"Risk Score: {risk_score:.2f}")
-    
-    # Display Risk Category
-    if risk_score < 0.3:
-        st.success("Low Risk")
-    elif risk_score < 0.6:
-        st.warning("Medium Risk")
-    else:
-        st.error("High Risk")
+# Ensure input is scaled correctly
+scaler = StandardScaler()
+numerical_features = ['age', 'avg_glucose_level', 'bmi']
+user_input[:, [1, 6, 7]] = scaler.fit_transform(user_input[:, [1, 6, 7]])
+
+# Debug: Print encoded input
+st.write("Encoded User Input:", user_input)
+
+# Make predictions
+risk_score = model.predict_proba(user_input)[0][1]
+
+# Display Risk Score
+st.write(f"Risk Score: {risk_score:.2f}")
+
+# Display Risk Category
+if risk_score < 0.3:
+    st.success("Low Risk")
+elif risk_score < 0.6:
+    st.warning("Medium Risk")
+else:
+    st.error("High Risk")
+
