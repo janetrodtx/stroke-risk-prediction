@@ -2,31 +2,31 @@ import streamlit as st
 import pickle
 import numpy as np
 import pandas as pd
-from sklearn.preprocessing import StandardScaler  # Import StandardScaler
+from sklearn.preprocessing import StandardScaler
 
 # Load the trained model
 with open("stroke_risk_model.pkl", "rb") as file:
     model = pickle.load(file)
 
 # Web App Title
-st.title("Simplified Stroke Risk Prediction")
+st.title("💖 Stroke Risk Prediction App")
+st.markdown("### Simplified and Personalized Stroke Risk Assessment")
 
 # Collect User Input
-st.header("Enter Your Details:")
-age = st.slider("Age:", 0, 100, 25)
-heart_disease = st.radio("Do you have heart disease?", ["Yes", "No"])
-work_status = st.radio("Do you work?", ["Yes", "No"])
-hypertension = st.radio("Do you have hypertension?", ["Yes", "No"])
-avg_glucose_level = st.slider("Average Glucose Level:", 0.0, 300.0, 100.0)
-bmi = st.slider("BMI:", 0.0, 60.0, 25.0)
-smoking_status = st.selectbox("Smoking Status:", ["never smoked", "formerly smoked", "smokes"])
-ever_married = st.radio("Have you ever been married?", ["Yes", "No"])
-previous_stroke = st.radio("Have you had a stroke before?", ["Yes", "No"])
+st.sidebar.header("Enter Your Details:")
+age = st.sidebar.slider("Age:", 0, 100, 25)
+heart_disease = st.sidebar.radio("Do you have heart disease?", ["Yes", "No"])
+hypertension = st.sidebar.radio("Do you have hypertension?", ["Yes", "No"])
+avg_glucose_level = st.sidebar.slider("Average Glucose Level:", 0.0, 300.0, 100.0)
+bmi = st.sidebar.slider("BMI:", 0.0, 60.0, 25.0)
+smoking_status = st.sidebar.selectbox("Smoking Status:", ["never smoked", "formerly smoked", "smokes"])
+ever_married = st.sidebar.radio("Have you ever been married?", ["Yes", "No"])
+previous_stroke = st.sidebar.radio("Have you had a stroke before?", ["Yes", "No"])
+work_type = st.sidebar.selectbox("Work Type:", ["Never_worked", "Private", "Self-employed", "children"])
 
-# Define the encode_input function
+# Encode user input
 def encode_input():
     heart_disease_encoded = 1 if heart_disease == "Yes" else 0
-    work_status_encoded = 1 if work_status == "Yes" else 0
     hypertension_encoded = 1 if hypertension == "Yes" else 0
     ever_married_encoded = 1 if ever_married == "Yes" else 0
     previous_stroke_encoded = 1 if previous_stroke == "Yes" else 0
@@ -40,57 +40,59 @@ def encode_input():
     elif smoking_status == "smokes":
         smoking_status_encoded[2] = 1
 
+    # One-hot encoding for work_type
+    work_type_encoded = [0, 0, 0, 0]
+    if work_type == "Never_worked":
+        work_type_encoded[0] = 1
+    elif work_type == "Private":
+        work_type_encoded[1] = 1
+    elif work_type == "Self-employed":
+        work_type_encoded[2] = 1
+    elif work_type == "children":
+        work_type_encoded[3] = 1
+
     # Combine all inputs
     features = [
-        age, heart_disease_encoded, work_status_encoded, hypertension_encoded, 
+        age, heart_disease_encoded, hypertension_encoded,
         avg_glucose_level, bmi, ever_married_encoded, previous_stroke_encoded
-    ] + smoking_status_encoded
+    ] + smoking_status_encoded + work_type_encoded
 
     return np.array(features).reshape(1, -1)
 
-# Encode User Input
-user_input = encode_input()  # Define user_input here
+# Encode and predict
+user_input = encode_input()
+risk_score = model.predict_proba(user_input)[0][1]
 
-# Create a DataFrame to align features
-feature_columns = [
-    'age', 'heart_disease', 'work_status', 'hypertension', 
-    'avg_glucose_level', 'bmi', 'ever_married', 'previous_stroke',
-    'smoking_status_formerly smoked', 'smoking_status_never smoked', 
-    'smoking_status_smokes', 'work_type_Never_worked', 'work_type_Private', 
-    'work_type_Self-employed', 'work_type_children'
-]
+# Display risk score as a percentage
+risk_percentage = risk_score * 100
+st.write(f"### 🩺 Your Risk Score: **{risk_percentage:.2f}%**")
 
-user_input_df = pd.DataFrame(user_input, columns=[
-    'age', 'heart_disease', 'work_status', 'hypertension', 
-    'avg_glucose_level', 'bmi', 'ever_married', 'previous_stroke',
-    'smoking_status_formerly smoked', 'smoking_status_never smoked', 
-    'smoking_status_smokes'
-])
+# Progress bar based on risk score
+st.progress(risk_score)
 
-# Add missing columns with 0 values
-for col in feature_columns:
-    if col not in user_input_df.columns:
-        user_input_df[col] = 0
-
-# Ensure the columns are in the correct order
-user_input_df = user_input_df[feature_columns]
-
-# Convert to numpy array for prediction
-user_input = user_input_df.values
-
-# Ensure input is scaled correctly
-# Make predictions
-risk_score = model.predict_proba(user_input)[0][1]  # Define risk_score here
-
-# Display Risk Score
-st.write(f"Risk Score: {risk_score:.2f}")
-
-# Adjusted Threshold for Risk Levels
-threshold = 0.3  # Adjust this value as needed
-if risk_score > threshold:
-    st.error("High Risk")
-elif risk_score > 0.15:
-    st.warning("Medium Risk")
+# Determine risk category
+if risk_score < 0.3:
+    st.success("You are at **Low Risk** for stroke. Keep up the healthy habits!")
+    st.write("✅ **Recommendations:**")
+    st.write("- Maintain regular physical activity (150 mins/week).")
+    st.write("- Follow a balanced diet (low sodium, rich in fruits and vegetables).")
+    st.write("- Keep regular health checkups for blood pressure and cholesterol.")
+elif risk_score < 0.6:
+    st.warning("You are at **Medium Risk** for stroke. Consider making lifestyle improvements.")
+    st.write("⚠️ **Recommendations:**")
+    st.write("- Increase physical activity: Aim for 30 minutes of exercise, 5 days a week.")
+    st.write("- Quit smoking: Seek support or resources.")
+    st.write("- Monitor cholesterol and blood pressure regularly.")
 else:
-    st.success("Low Risk")
+    st.error("You are at **High Risk** for stroke. Take immediate action.")
+    st.write("🚨 **Recommendations:**")
+    st.write("- Consult a healthcare provider immediately.")
+    st.write("- Implement lifestyle changes: Quit smoking, reduce salt intake.")
+    st.write("- Increase physical activity to manage weight and cardiovascular health.")
+    st.write("- Consider medication for blood pressure and cholesterol if advised.")
+
+# Footer
+st.markdown("---")
+st.markdown("📋 **Note:** This prediction is based on the data provided and is not a substitute for professional medical advice.")
+
 
