@@ -73,9 +73,16 @@ feature_columns = [
 # DEBUG: Print expected and actual features
 st.write("### Debug Information")
 st.write(f"Model trained with {model.n_features_in_} features.")
-st.write(f"User input has {user_input.shape[1]} features.")
+st.write(f"User input has {len(feature_columns)} features.")
 st.write("Expected Features (Model):", model.feature_names_in_)
 st.write("Provided Features (User Input):", feature_columns)
+
+# Check for missing features
+missing_features = set(model.feature_names_in_) - set(feature_columns)
+extra_features = set(feature_columns) - set(model.feature_names_in_)
+st.write("Missing Features in User Input:", missing_features)
+st.write("Extra Features in User Input:", extra_features)
+
 
 
 user_input_df = pd.DataFrame(user_input, columns=feature_columns)
