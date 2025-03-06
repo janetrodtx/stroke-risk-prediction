@@ -2,11 +2,14 @@ import streamlit as st
 import pickle
 import numpy as np
 import pandas as pd
-from sklearn.preprocessing import StandardScaler
 
 # Load the trained model
 with open("stroke_risk_model.pkl", "rb") as file:
     model = pickle.load(file)
+
+# Load the scaler for input standardization
+with open("scaler.pkl", "rb") as file:
+    scaler = pickle.load(file)
 
 # Web App Title
 st.title("💖 Stroke Risk Prediction App")
@@ -64,33 +67,22 @@ def encode_input():
 # Encode and predict
 user_input = encode_input()
 
+# Standardize the user input using the loaded scaler
+user_input = scaler.transform(user_input)
+
 # Define the expected feature columns based on the user input encoding
-expected_features = [
+feature_columns = [
     "gender", "age", "hypertension", "heart_disease", "ever_married", "Residence_type",
     "avg_glucose_level", "bmi",
     "smoking_status_formerly smoked", "smoking_status_never smoked", "smoking_status_smokes",
     "work_type_Never_worked", "work_type_Private", "work_type_Self-employed", "work_type_children"
 ]
 
-# Create a DataFrame with zeros and fill with user input
-user_input_df = pd.DataFrame(columns=expected_features)
-user_input_df.loc[0] = 0  # Initialize with zeros
-user_input_df.loc[0, user_input_df.columns] = user_input[0]  # Fill with actual input
-
-# Check for missing features
-missing_features = set(model.feature_names_in_) - set(user_input_df.columns)
-extra_features = set(user_input_df.columns) - set(model.feature_names_in_)
-st.write("### Debug Information")
-st.write(f"Model trained with {model.n_features_in_} features.")
-st.write(f"User input has {len(expected_features)} features.")
-st.write("Missing Features in User Input:", missing_features)
-st.write("Extra Features in User Input:", extra_features)
-
-# Ensure user input matches the model's expected input
-user_input_df = user_input_df[model.feature_names_in_]
+# Create DataFrame for user input
+user_input_df = pd.DataFrame(user_input, columns=feature_columns)
 
 # Predict risk score
-risk_score = model.predict_proba(user_input_df)[0][1]
+risk_score = model.predict_proba(user_input)[0][1]
 
 # Display risk score as a percentage
 risk_percentage = risk_score * 100
