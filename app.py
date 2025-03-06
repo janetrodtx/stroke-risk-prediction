@@ -95,8 +95,3 @@ else:
 st.markdown("---")
 st.markdown("📋 **Note:** This prediction is based on the data provided and is not a substitute for professional medical advice.")
 
-<<<<<<< HEAD
-
-=======
->>>>>>> 4b2c18753fa624828bfade9c8e30147335a1efc5
-
