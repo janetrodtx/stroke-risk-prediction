@@ -21,6 +21,7 @@ gender = st.sidebar.radio("Gender:", ["Male", "Female"])
 age = st.sidebar.slider("Age:", 0, 100, 25)
 heart_disease = st.sidebar.radio("Do you have heart disease?", ["Yes", "No"])
 hypertension = st.sidebar.radio("Do you have hypertension?", ["Yes", "No"])
+previous_stroke = st.sidebar.radio("Have you had a stroke before?", ["Yes", "No"])
 avg_glucose_level = st.sidebar.slider("Average Glucose Level:", 0.0, 300.0, 100.0)
 bmi = st.sidebar.slider("BMI:", 0.0, 60.0, 25.0)
 smoking_status = st.sidebar.selectbox("Smoking Status:", ["never smoked", "formerly smoked", "smokes"])
@@ -33,6 +34,7 @@ def encode_input():
     gender_encoded = 1 if gender == "Male" else 0
     heart_disease_encoded = 1 if heart_disease == "Yes" else 0
     hypertension_encoded = 1 if hypertension == "Yes" else 0
+    previous_stroke_encoded = 1 if previous_stroke == "Yes" else 0
     ever_married_encoded = 1 if ever_married == "Yes" else 0
     residence_encoded = 1 if residence_type == "Urban" else 0
 
@@ -59,7 +61,8 @@ def encode_input():
     # Combine all inputs
     features = [
         gender_encoded, age, hypertension_encoded, heart_disease_encoded,
-        ever_married_encoded, residence_encoded, avg_glucose_level, bmi
+        previous_stroke_encoded, ever_married_encoded, residence_encoded,
+        avg_glucose_level, bmi
     ] + smoking_status_encoded + work_type_encoded
 
     return np.array(features).reshape(1, -1)
@@ -72,7 +75,7 @@ user_input = scaler.transform(user_input)
 
 # Define the expected feature columns based on the user input encoding
 feature_columns = [
-    "gender", "age", "hypertension", "heart_disease", "ever_married", "Residence_type",
+    "gender", "age", "hypertension", "heart_disease", "previous_stroke", "ever_married", "Residence_type",
     "avg_glucose_level", "bmi",
     "smoking_status_formerly smoked", "smoking_status_never smoked", "smoking_status_smokes",
     "work_type_Never_worked", "work_type_Private", "work_type_Self-employed", "work_type_children"
@@ -115,3 +118,4 @@ else:
 # Footer
 st.markdown("---")
 st.markdown("📋 **Note:** This prediction is based on the data provided and is not a substitute for professional medical advice.")
+
