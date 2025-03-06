@@ -75,9 +75,14 @@ feature_columns = [
 # Create DataFrame for user input
 user_input_df = pd.DataFrame(user_input, columns=feature_columns)
 
+# Remove 'stroke' from model's expected features if it exists
+expected_features = list(model.feature_names_in_)
+if 'stroke' in expected_features:
+    expected_features.remove('stroke')
+
 # Check for missing features
-missing_features = set(model.feature_names_in_) - set(user_input_df.columns)
-extra_features = set(user_input_df.columns) - set(model.feature_names_in_)
+missing_features = set(expected_features) - set(user_input_df.columns)
+extra_features = set(user_input_df.columns) - set(expected_features)
 st.write("### Debug Information")
 st.write(f"Model trained with {model.n_features_in_} features.")
 st.write(f"User input has {len(feature_columns)} features.")
@@ -85,10 +90,6 @@ st.write("Missing Features in User Input:", missing_features)
 st.write("Extra Features in User Input:", extra_features)
 
 # Ensure user input matches the model's expected input
-expected_features = list(model.feature_names_in_)
-if 'stroke' in expected_features:
-    expected_features.remove('stroke')
-
 user_input_df = user_input_df.reindex(columns=expected_features, fillna=0)
 
 # Predict risk score using the updated DataFrame
@@ -125,3 +126,4 @@ else:
 # Footer
 st.markdown("---")
 st.markdown("📋 **Note:** This prediction is based on the data provided and is not a substitute for professional medical advice.")
+
