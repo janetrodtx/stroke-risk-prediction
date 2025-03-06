@@ -16,14 +16,14 @@ st.markdown("### Simplified and Personalized Stroke Risk Assessment")
 st.sidebar.header("Enter Your Details:")
 gender = st.sidebar.radio("Gender:", ["Male", "Female"])
 age = st.sidebar.slider("Age:", 0, 100, 25)
-residence_type = st.sidebar.radio("Residence Type:", ["Urban", "Rural"])
 heart_disease = st.sidebar.radio("Do you have heart disease?", ["Yes", "No"])
 hypertension = st.sidebar.radio("Do you have hypertension?", ["Yes", "No"])
 avg_glucose_level = st.sidebar.slider("Average Glucose Level:", 0.0, 300.0, 100.0)
 bmi = st.sidebar.slider("BMI:", 0.0, 60.0, 25.0)
 smoking_status = st.sidebar.selectbox("Smoking Status:", ["never smoked", "formerly smoked", "smokes"])
 ever_married = st.sidebar.radio("Have you ever been married?", ["Yes", "No"])
-previous_stroke = st.sidebar.radio("Have you had a stroke before?", ["Yes", "No"])
+stroke = st.sidebar.radio("Have you had a stroke before?", ["Yes", "No"])
+residence_type = st.sidebar.radio("Residence Type:", ["Urban", "Rural"])
 work_type = st.sidebar.selectbox("Work Type:", ["Never_worked", "Private", "Self-employed", "children"])
 
 # Encode user input
@@ -32,8 +32,8 @@ def encode_input():
     heart_disease_encoded = 1 if heart_disease == "Yes" else 0
     hypertension_encoded = 1 if hypertension == "Yes" else 0
     ever_married_encoded = 1 if ever_married == "Yes" else 0
-    previous_stroke_encoded = 1 if previous_stroke == "Yes" else 0
-    residence_type_encoded = 1 if residence_type == "Urban" else 0
+    stroke_encoded = 1 if stroke == "Yes" else 0
+    residence_encoded = 1 if residence_type == "Urban" else 0
 
     # One-hot encoding for smoking_status
     smoking_status_encoded = [0, 0, 0]
@@ -58,8 +58,7 @@ def encode_input():
     # Combine all inputs
     features = [
         gender_encoded, age, hypertension_encoded, heart_disease_encoded,
-        ever_married_encoded, residence_type_encoded, avg_glucose_level, bmi,
-        previous_stroke_encoded
+        ever_married_encoded, residence_encoded, avg_glucose_level, bmi, stroke_encoded
     ] + smoking_status_encoded + work_type_encoded
 
     return np.array(features).reshape(1, -1)
@@ -70,7 +69,7 @@ user_input = encode_input()
 # Define the expected feature columns based on the user input encoding
 feature_columns = [
     "gender", "age", "hypertension", "heart_disease", "ever_married", "Residence_type",
-    "avg_glucose_level", "bmi", "previous_stroke",
+    "avg_glucose_level", "bmi", "stroke",
     "smoking_status_formerly smoked", "smoking_status_never smoked", "smoking_status_smokes",
     "work_type_Never_worked", "work_type_Private", "work_type_Self-employed", "work_type_children"
 ]
@@ -82,15 +81,17 @@ st.write(f"User input has {len(feature_columns)} features.")
 st.write("Expected Features (Model):", model.feature_names_in_)
 st.write("Provided Features (User Input):", feature_columns)
 
-# Check for missing features
+# Check for missing and extra features
 missing_features = set(model.feature_names_in_) - set(feature_columns)
 extra_features = set(feature_columns) - set(model.feature_names_in_)
 st.write("Missing Features in User Input:", missing_features)
 st.write("Extra Features in User Input:", extra_features)
 
-# Create a DataFrame for user input
+# Create DataFrame for user input
 user_input_df = pd.DataFrame(user_input, columns=feature_columns)
-user_input_df = user_input_df[model.feature_names_in_]
+
+# Align DataFrame columns with model's expected features
+user_input_df = user_input_df.reindex(columns=model.feature_names_in_, fill_value=0)
 user_input = user_input_df.values
 
 # Predict risk score
@@ -118,11 +119,7 @@ elif risk_score < 0.6:
     st.write("- Monitor cholesterol and blood pressure regularly.")
 else:
     st.error("You are at **High Risk** for stroke. Take immediate action.")
-    st.write("🚨 **Recommendations:**")
-    st.write("- Consult a healthcare provider immediately.")
-    st.write("- Implement lifestyle changes: Quit smoking, reduce salt intake.")
-    st.write("- Increase physical activity to manage weight and cardiovascular health.")
-    st.write("- Consider medication for blood pressure and cholesterol if advised.")
+    st.write("🚨 **Recommendat
 
 # Footer
 st.markdown("---")
