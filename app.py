@@ -79,19 +79,18 @@ user_input_df = user_input_df[feature_columns]
 user_input = user_input_df.values
 
 # Ensure input is scaled correctly
-scaler = StandardScaler()
-user_input[:, [0, 4, 5]] = scaler.fit_transform(user_input[:, [0, 4, 5]])
-
 # Make predictions
-risk_score = model.predict_proba(user_input)[0][1]
+risk_score = model.predict_proba(user_input)[0][1]  # Define risk_score here
 
 # Display Risk Score
 st.write(f"Risk Score: {risk_score:.2f}")
 
-# Display Risk Category
-if risk_score < 0.3:
-    st.success("Low Risk")
-elif risk_score < 0.6:
+# Adjusted Threshold for Risk Levels
+threshold = 0.3  # Adjust this value as needed
+if risk_score > threshold:
+    st.error("High Risk")
+elif risk_score > 0.15:
     st.warning("Medium Risk")
 else:
-    st.error("High Risk")
+    st.success("Low Risk")
+
