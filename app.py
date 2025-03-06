@@ -88,6 +88,11 @@ st.write("Extra Features in User Input:", extra_features)
 expected_features = list(model.feature_names_in_)
 user_input_df = user_input_df.reindex(columns=expected_features, fillna=0)
 
+# Convert DataFrame back to numpy array for prediction
+user_input = user_input_df.values
+
+
+
 # Predict risk score
 user_input = user_input_df.values
 risk_score = model.predict_proba(user_input)[0][1]
