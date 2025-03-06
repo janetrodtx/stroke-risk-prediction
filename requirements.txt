@@ -25,10 +25,8 @@ scikit-learn
 scipy
 seaborn
 SQLAlchemy
-<<<<<<< HEAD
 streamlit>=1.0.0
 xgboost
 =======
 streamlit
 xgboost
->>>>>>> 4b2c18753fa624828bfade9c8e30147335a1efc5
