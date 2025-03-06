@@ -86,7 +86,8 @@ st.write("Extra Features in User Input:", extra_features)
 
 # Ensure user input matches the model's expected input
 expected_features = list(model.feature_names_in_)
-user_input_df = user_input_df.reindex(columns=expected_features, fillna=0)
+user_input_df = user_input_df.reindex(columns=expected_features).fillna(0)
+
 
 # Convert DataFrame back to numpy array for prediction
 user_input = user_input_df.values
