@@ -1,6 +1,8 @@
 import streamlit as st
 import pickle
 import numpy as np
+from sklearn.preprocessing import StandardScaler  # Added this line
+
 
 # Load the trained model
 with open("stroke_risk_model.pkl", "rb") as file:
