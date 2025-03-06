@@ -62,6 +62,14 @@ def encode_input():
 # Encode and predict
 user_input = encode_input()
 
+# Define the expected feature columns based on the user input encoding
+feature_columns = [
+    "age", "heart_disease", "hypertension", "avg_glucose_level", "bmi", 
+    "ever_married", "previous_stroke",
+    "smoking_status_formerly smoked", "smoking_status_never smoked", "smoking_status_smokes",
+    "work_type_Never_worked", "work_type_Private", "work_type_Self-employed", "work_type_children"
+]
+
 # DEBUG: Print expected and actual features
 st.write("### Debug Information")
 st.write(f"Model trained with {model.n_features_in_} features.")
@@ -69,14 +77,6 @@ st.write(f"User input has {user_input.shape[1]} features.")
 st.write("Expected Features (Model):", model.feature_names_in_)
 st.write("Provided Features (User Input):", feature_columns)
 
-
-# Ensure correct feature order and count
-feature_columns = [
-    'age', 'heart_disease', 'hypertension', 'avg_glucose_level', 'bmi',
-    'ever_married', 'previous_stroke',
-    'smoking_status_formerly smoked', 'smoking_status_never smoked', 'smoking_status_smokes',
-    'work_type_Never_worked', 'work_type_Private', 'work_type_Self-employed', 'work_type_children'
-]
 
 user_input_df = pd.DataFrame(user_input, columns=feature_columns)
 user_input_df = user_input_df[model.feature_names_in_]
