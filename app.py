@@ -62,8 +62,11 @@ def encode_input():
 
 # Predict Stroke Risk
 # Ensure input is scaled correctly
+# Encode User Input
+user_input = encode_input()  # Define user_input here
+
+# Ensure input is scaled correctly
 scaler = StandardScaler()
-numerical_features = ['age', 'avg_glucose_level', 'bmi']
 user_input[:, [1, 6, 7]] = scaler.fit_transform(user_input[:, [1, 6, 7]])
 
 # Debug: Print encoded input
@@ -82,4 +85,5 @@ elif risk_score < 0.6:
     st.warning("Medium Risk")
 else:
     st.error("High Risk")
+
 
