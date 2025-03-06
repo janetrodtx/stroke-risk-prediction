@@ -62,9 +62,13 @@ def encode_input():
 # Encode and predict
 user_input = encode_input()
 
-# DEBUG: Print feature counts for comparison
+# DEBUG: Print expected and actual features
+st.write("### Debug Information")
 st.write(f"Model trained with {model.n_features_in_} features.")
 st.write(f"User input has {user_input.shape[1]} features.")
+st.write("Expected Features (Model):", model.feature_names_in_)
+st.write("Provided Features (User Input):", feature_columns)
+
 
 # Ensure correct feature order and count
 feature_columns = [
