@@ -14,7 +14,9 @@ st.markdown("### Simplified and Personalized Stroke Risk Assessment")
 
 # Collect User Input
 st.sidebar.header("Enter Your Details:")
+gender = st.sidebar.radio("Gender:", ["Male", "Female"])
 age = st.sidebar.slider("Age:", 0, 100, 25)
+residence_type = st.sidebar.radio("Residence Type:", ["Urban", "Rural"])
 heart_disease = st.sidebar.radio("Do you have heart disease?", ["Yes", "No"])
 hypertension = st.sidebar.radio("Do you have hypertension?", ["Yes", "No"])
 avg_glucose_level = st.sidebar.slider("Average Glucose Level:", 0.0, 300.0, 100.0)
@@ -26,10 +28,12 @@ work_type = st.sidebar.selectbox("Work Type:", ["Never_worked", "Private", "Self
 
 # Encode user input
 def encode_input():
+    gender_encoded = 1 if gender == "Male" else 0
     heart_disease_encoded = 1 if heart_disease == "Yes" else 0
     hypertension_encoded = 1 if hypertension == "Yes" else 0
     ever_married_encoded = 1 if ever_married == "Yes" else 0
     previous_stroke_encoded = 1 if previous_stroke == "Yes" else 0
+    residence_type_encoded = 1 if residence_type == "Urban" else 0
 
     # One-hot encoding for smoking_status
     smoking_status_encoded = [0, 0, 0]
@@ -53,8 +57,9 @@ def encode_input():
 
     # Combine all inputs
     features = [
-        age, heart_disease_encoded, hypertension_encoded,
-        avg_glucose_level, bmi, ever_married_encoded, previous_stroke_encoded
+        gender_encoded, age, hypertension_encoded, heart_disease_encoded,
+        ever_married_encoded, residence_type_encoded, avg_glucose_level, bmi,
+        previous_stroke_encoded
     ] + smoking_status_encoded + work_type_encoded
 
     return np.array(features).reshape(1, -1)
@@ -64,8 +69,8 @@ user_input = encode_input()
 
 # Define the expected feature columns based on the user input encoding
 feature_columns = [
-    "age", "heart_disease", "hypertension", "avg_glucose_level", "bmi", 
-    "ever_married", "previous_stroke",
+    "gender", "age", "hypertension", "heart_disease", "ever_married", "Residence_type",
+    "avg_glucose_level", "bmi", "previous_stroke",
     "smoking_status_formerly smoked", "smoking_status_never smoked", "smoking_status_smokes",
     "work_type_Never_worked", "work_type_Private", "work_type_Self-employed", "work_type_children"
 ]
@@ -83,8 +88,7 @@ extra_features = set(feature_columns) - set(model.feature_names_in_)
 st.write("Missing Features in User Input:", missing_features)
 st.write("Extra Features in User Input:", extra_features)
 
-
-
+# Create a DataFrame for user input
 user_input_df = pd.DataFrame(user_input, columns=feature_columns)
 user_input_df = user_input_df[model.feature_names_in_]
 user_input = user_input_df.values
@@ -123,4 +127,5 @@ else:
 # Footer
 st.markdown("---")
 st.markdown("📋 **Note:** This prediction is based on the data provided and is not a substitute for professional medical advice.")
+
 
