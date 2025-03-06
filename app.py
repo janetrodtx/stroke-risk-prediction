@@ -85,16 +85,14 @@ st.write("Missing Features in User Input:", missing_features)
 st.write("Extra Features in User Input:", extra_features)
 
 # Ensure user input matches the model's expected input
-# Remove 'stroke' from the model's expected features if it exists
 expected_features = list(model.feature_names_in_)
 if 'stroke' in expected_features:
     expected_features.remove('stroke')
 
 user_input_df = user_input_df.reindex(columns=expected_features, fillna=0)
 
-
-# Predict risk score
-risk_score = model.predict_proba(user_input)[0][1]
+# Predict risk score using the updated DataFrame
+risk_score = model.predict_proba(user_input_df)[0][1]
 
 # Display risk score as a percentage
 risk_percentage = risk_score * 100
@@ -127,6 +125,3 @@ else:
 # Footer
 st.markdown("---")
 st.markdown("📋 **Note:** This prediction is based on the data provided and is not a substitute for professional medical advice.")
-
-
-
