@@ -85,8 +85,13 @@ st.write("Missing Features in User Input:", missing_features)
 st.write("Extra Features in User Input:", extra_features)
 
 # Ensure user input matches the model's expected input
-user_input_df = user_input_df.reindex(columns=model.feature_names_in_, fillna=0)
-user_input = user_input_df.values
+# Remove 'stroke' from the model's expected features if it exists
+expected_features = list(model.feature_names_in_)
+if 'stroke' in expected_features:
+    expected_features.remove('stroke')
+
+user_input_df = user_input_df.reindex(columns=expected_features, fillna=0)
+
 
 # Predict risk score
 risk_score = model.predict_proba(user_input)[0][1]
