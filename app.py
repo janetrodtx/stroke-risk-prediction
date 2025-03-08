@@ -70,9 +70,6 @@ def encode_input():
 # Encode and predict
 user_input = encode_input()
 
-# Standardize the user input using the loaded scaler
-user_input = scaler.transform(user_input)
-
 # Define the expected feature columns based on the user input encoding
 feature_columns = [
     "gender", "age", "hypertension", "heart_disease", "previous_stroke", "ever_married", "Residence_type",
@@ -81,8 +78,19 @@ feature_columns = [
     "work_type_Never_worked", "work_type_Private", "work_type_Self-employed", "work_type_children"
 ]
 
-# Create DataFrame for user input
+# Create DataFrame for user input and add missing columns with 0 values
 user_input_df = pd.DataFrame(user_input, columns=feature_columns)
+
+# Ensure all expected columns are present
+for col in feature_columns:
+    if col not in user_input_df.columns:
+        user_input_df[col] = 0
+
+# Reorder columns to match the order used during training
+user_input_df = user_input_df[feature_columns]
+
+# Standardize the user input using the loaded scaler
+user_input = scaler.transform(user_input_df)
 
 # Predict risk score
 risk_score = model.predict_proba(user_input)[0][1]
@@ -118,4 +126,3 @@ else:
 # Footer
 st.markdown("---")
 st.markdown("📋 **Note:** This prediction is based on the data provided and is not a substitute for professional medical advice.")
-
